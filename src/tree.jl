@@ -1,18 +1,18 @@
 struct POMCPOWTree{B,A,O,RB}
     # action nodes
-    n::Vector{Int}
-    v::Vector{Float64}
-    generated::Vector{Vector{Pair{O,Int}}}
+    n::Vector{Int}  #这个动作点的访问次数
+    v::Vector{Vector{Float64}}  #这个动作点的历史值估计
+    generated::Vector{Vector{Pair{O,Int}}} #动作结点的子观察节点对indice的映射，在solver中相当于M使用
     a_child_lookup::Dict{Tuple{Int,O}, Int} # may not be maintained based on solver params
-    a_labels::Vector{A}
-    n_a_children::Vector{Int}
+    a_labels::Vector{A} #真正的动作
+    n_a_children::Vector{Int} #动作结点的子观察结点数量
 
     # observation nodes
-    sr_beliefs::Vector{B} # first element is #undef
-    total_n::Vector{Int}
-    tried::Vector{Vector{Int}}
+    sr_beliefs::Vector{B} # first element is #undef #对应的信念状态
+    total_n::Vector{Int} # 这个观察点的访问次数
+    tried::Vector{Vector{Int}} # 观察点的子节点序列
     o_child_lookup::Dict{Tuple{Int,A}, Int} # may not be maintained based on solver params
-    o_labels::Vector{O}
+    o_labels::Vector{O} #真正的观察
 
     # root
     root_belief::RB
@@ -21,7 +21,7 @@ struct POMCPOWTree{B,A,O,RB}
         sz = min(sz, 100_000)
         return new(
             sizehint!(Int[], sz),
-            sizehint!(Int[], sz),
+            sizehint!(Vector{Float64}[Float64[]], sz),
             sizehint!(Vector{Pair{O,Int}}[], sz),
             Dict{Tuple{Int,O}, Int}(),
             sizehint!(A[], sz),
@@ -38,10 +38,10 @@ struct POMCPOWTree{B,A,O,RB}
     end
 end
 
-@inline function push_anode!(tree::POMCPOWTree{B,A,O}, h::Int, a::A, n::Int=0, v::Float64=0.0, update_lookup=true) where {B,A,O}
+@inline function push_anode!(tree::POMCPOWTree{B,A,O}, h::Int, a::A, n::Int=0, v::Float64=0.0, update_lookup=true) where {B,A,O} #给观察插入一个动作
     anode = length(tree.n) + 1
     push!(tree.n, n)
-    push!(tree.v, v)
+    push!(tree.v, [v])#可能这里的创建语法有问题
     push!(tree.generated, Pair{O,Int}[])
     push!(tree.a_labels, a)
     push!(tree.n_a_children, 0)

@@ -5,6 +5,7 @@ using BasicPOMCP
 using ParticleFilters
 using Parameters
 using MCTS
+using CPUTime
 using D3Trees
 using Colors
 using Random
@@ -129,10 +130,9 @@ Fields:
     If this is a Policy `p`, `action(p, belief)` will be called.
     If it is an object `a`, `default_action(a, pomdp, belief, ex)` will be called, and
     if this method is not implemented, `a` will be returned directly.
-- `timer::Function`:
-    Timekeeping method. Search iterations ended when `timer() - start_time ≥ max_time`.
+
 """
-@with_kw mutable struct POMCPOWSolver{RNG<:AbstractRNG,T} <: AbstractPOMCPSolver
+@with_kw mutable struct POMCPOWSolver{RNG<:AbstractRNG} <: AbstractPOMCPSolver
     eps::Float64                = 0.01
     max_depth::Int              = typemax(Int)
     criterion                   = MaxUCB(1.0)
@@ -157,7 +157,10 @@ Fields:
     init_N::Any                 = 0
     next_action::Any            = RandomActionGenerator(rng)
     default_action::Any         = ExceptionRethrow()
-    timer::T                    = () -> 1e-9*time_ns()
+
+    simulate_nums::Int          = 1000 #模拟次数
+    iteration::Int              = 1 #现在的模拟次序，在模拟时要实时更新
+    beta::Float64               = 0.5 #以前Q值的平衡参数
 end
 
 # unweighted ParticleCollections don't get anything pushed to them
