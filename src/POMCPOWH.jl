@@ -168,7 +168,7 @@ include("planner2.jl")
 include("solver2.jl")
 
 function solve(solver::POMCPOWHSolver, problem::POMDP)
-    return POMCPOWPlanner(solver, problem)
+    return POMCPOWHPlanner(solver, problem)
 end
 
 include("updater.jl")

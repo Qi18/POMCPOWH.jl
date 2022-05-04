@@ -7,7 +7,7 @@ mutable struct POMCPOWHPlanner{P,NBU,C,NA,SE,IN,IV,SolverType,INF} <: Policy
     solved_estimate::SE
     init_N::IN
     init_V::IV
-    tree::Union{Nothing, POMCPOWTree} # this is just so you can look at the tree later
+    tree::Union{Nothing, POMCPOWHTree} # this is just so you can look at the tree later
     history_info::INF
 end
 
