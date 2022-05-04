@@ -21,7 +21,7 @@ struct POMCPOWTree{B,A,O,RB}
         sz = min(sz, 100_000)
         return new(
             sizehint!(Int[], sz),
-            sizehint!(Vector{Float64}[Float64[]], sz),
+            sizehint!(Vector{Float64}[], sz),
             sizehint!(Vector{Pair{O,Int}}[], sz),
             Dict{Tuple{Int,O}, Int}(),
             sizehint!(A[], sz),
@@ -40,8 +40,15 @@ end
 
 @inline function push_anode!(tree::POMCPOWTree{B,A,O}, h::Int, a::A, n::Int=0, v::Float64=0.0, update_lookup=true) where {B,A,O} #给观察插入一个动作
     anode = length(tree.n) + 1
+    # println("创建一个动作结点，现在它的序号是$(anode)")
     push!(tree.n, n)
-    push!(tree.v, [v])#可能这里的创建语法有问题
+    push!(tree.v, [v])
+    # for i in tree.v
+    #     println(i)
+    #     println(length(i))
+    # end
+    # println("$(length([v]))")
+    # println("$(tree.v[anode])")
     push!(tree.generated, Pair{O,Int}[])
     push!(tree.a_labels, a)
     push!(tree.n_a_children, 0)

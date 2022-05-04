@@ -158,9 +158,7 @@ Fields:
     next_action::Any            = RandomActionGenerator(rng)
     default_action::Any         = ExceptionRethrow()
 
-    simulate_nums::Int          = 1000 #模拟次数
-    iteration::Int              = 1 #现在的模拟次序，在模拟时要实时更新
-    beta::Float64               = 0.5 #以前Q值的平衡参数
+    history_info                = SimuInfo(1000,0,0.5)
 end
 
 # unweighted ParticleCollections don't get anything pushed to them

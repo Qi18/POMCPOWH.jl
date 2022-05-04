@@ -1,8 +1,14 @@
+struct SimuInfo
+    simulate_nums::Int  #模拟次数
+    iteration::Int #现在的模拟次序，在模拟时要实时更新
+    beta::Float64 #以前Q值的平衡参数
+end
+
 struct MaxUCB
     c::Float64
 end
 
-function select_best(crit::MaxUCB, h_node::POWTreeObsNode,pomcp::POMCPOWPlanner, rng) #UCT
+function select_best(crit::MaxUCB, h_node::POWTreeObsNode,info::SimuInfo, rng) #UCT
     tree = h_node.tree
     h = h_node.node
     best_criterion_val = -Inf
@@ -17,9 +23,10 @@ function select_best(crit::MaxUCB, h_node::POWTreeObsNode,pomcp::POMCPOWPlanner,
         elseif n == 0 && tree.v[node][length(tree.v[node])] == -Inf
             criterion_value = Inf
         else
-            history_value=pomcp.solver.beta*sqrt(Range(tree.v[node])*Standard_Deviation(tree.v[node]))
-            if pomcp.solver.iteration <= pomcp.solver.simulate_nums/2 -1
-                alpha=pomcp.solver.simulate_nums/(2*(pomcp.solver.iteration+1))*crit.c
+            history_value=info.beta*sqrt(Range(tree.v[node])*Standard_Deviation(tree.v[node]))
+            # println("这是第$(info.iteration)次模拟")
+            if info.iteration <= info.simulate_nums/2 -1
+                alpha=info.simulate_nums/(2*(info.iteration+1))*crit.c
             else 
                 alpha=crit.c
             end
@@ -47,7 +54,7 @@ end
 
 struct MaxQ end
 
-function select_best(crit::MaxQ, h_node::POWTreeObsNode,pomcp::POMCPOWPlanner, rng) #选择Q值最大的
+function select_best(crit::MaxQ, h_node::POWTreeObsNode,info::SimuInfo, rng) #选择Q值最大的
     tree = h_node.tree
     h = h_node.node
     best_node = first(tree.tried[h])
@@ -64,7 +71,7 @@ end
 
 struct MaxTries end
 
-function select_best(crit::MaxTries, h_node::POWTreeObsNode,pomcp::POMCPOWPlanner, rng) #选择访问次数最多的
+function select_best(crit::MaxTries, h_node::POWTreeObsNode,info::SimuInfo, rng) #选择访问次数最多的
     tree = h_node.tree
     h = h_node.node
     best_node = first(tree.tried[h])
@@ -85,20 +92,25 @@ function Range(A::Vector{Float64})
     for i in A
         if max < i
             max = i
+        end
         if min > i
             min = i
-    max-min        
+        end
+    end       
+    max-min 
 end
 
 function Standard_Deviation(A::Vector{Float64})
     sum = 0
     for i in A
         sum+=i
+    end
     mean = sum/length(A)
     result = 0
     for i in A
-        result+=(i-mean)*(i-mean)
-    result/=length(A)    
+        result+=(i-mean)*(i-mean)    
+    end
+    result/=length(A)
     sqrt(result)
 end
 

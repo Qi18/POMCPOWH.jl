@@ -1,4 +1,4 @@
-mutable struct POMCPOWPlanner{P,NBU,C,NA,SE,IN,IV,SolverType} <: Policy
+mutable struct POMCPOWPlanner{P,NBU,C,NA,SE,IN,IV,SolverType,INF} <: Policy
     solver::SolverType
     problem::P
     node_sr_belief_updater::NBU
@@ -8,6 +8,7 @@ mutable struct POMCPOWPlanner{P,NBU,C,NA,SE,IN,IV,SolverType} <: Policy
     init_N::IN
     init_V::IV
     tree::Union{Nothing, POMCPOWTree} # this is just so you can look at the tree later
+    history_info::INF
 end
 
 function POMCPOWPlanner(solver, problem::POMDP)
@@ -19,7 +20,8 @@ function POMCPOWPlanner(solver, problem::POMDP)
                   convert_estimator(solver.estimate_value, solver, problem),
                   solver.init_N,
                   solver.init_V,
-                  nothing)
+                  nothing,
+                  solver.history_info)
 end
 
 Random.seed!(p::POMCPOWPlanner, seed) = Random.seed!(p.solver.rng, seed)
@@ -94,7 +96,7 @@ function search(pomcp::POMCPOWPlanner, tree::POMCPOWTree, info::Dict{Symbol,Any}
         throw(AllSamplesTerminal(tree.root_belief))
     end
 
-    best_node = select_best(pomcp.solver.final_criterion, POWTreeObsNode(tree,1),pomcp, pomcp.solver.rng)
+    best_node = select_best(pomcp.solver.final_criterion, POWTreeObsNode(tree,1),pomcp.history_info, pomcp.solver.rng)
 
     return tree.a_labels[best_node]
 end

@@ -50,7 +50,7 @@ function simulate(pomcp::POMCPOWPlanner, h_node::POWTreeObsNode{B,A,O}, s::S, d)
     total_n = tree.total_n[h]
 
     # 根据准则选择拓宽树的最优动作结点（UCT）
-    best_node = select_best(pomcp.criterion, h_node, pomcp.solver.rng,pomcp)
+    best_node = select_best(pomcp.criterion, h_node,pomcp.history_info, pomcp.solver.rng)
     a = tree.a_labels[best_node]
 
 
