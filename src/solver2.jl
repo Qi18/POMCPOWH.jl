@@ -110,6 +110,7 @@ function simulate(pomcp::POMCPOWPlanner, h_node::POWTreeObsNode{B,A,O}, s::S, d)
     Q=tree.v[best_node][length(tree.v[best_node])]
     if Q != -Inf
         push!(tree.v[best_node],(R-Q)/tree.n[best_node])
+        # println("结点$(best_node)的Q值个数为$(length(tree.v[best_node]))")
     end
 
     return R, dep
